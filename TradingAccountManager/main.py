@@ -2,6 +2,7 @@ import asyncio
 import websockets
 
 from WSCommunicator import WSCommunicator
+from AccountUpdator import AccountUpdator
 
 '''
 WS
@@ -15,10 +16,12 @@ class TradaingAccountManager:
     def __init__(self) -> None:
         pass
 
-    async def main():
+    async def main(self):
         ws_com = WSCommunicator()
+        ac_updator = AccountUpdator()
         await asyncio.gather(
             ws_com.start(),
+            ac_updator.start()
         )
 
 

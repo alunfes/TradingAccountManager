@@ -1,19 +1,56 @@
 import asyncio
-import websockets
+import json
+import aiohttp
 
+from WSCommData import WSCommData
+from Strategy import Strategy
 
+'''
+ws messageのやり取りは全てWSCommDataに入れて・参照して行う。
+・get data and judge action, then send it using ws
+・
+'''
 class Bot:
     def __init__(self) -> None:
-        self.client_id = 'b'
+        self.main_loop_frequency = 5
+        Strategy.initialize()
+    
+    async def start(self):
+        async with asyncio.TaskGroup() as tg:
+            task = tg.create_task(self.__main_loop())
+        
+    async def __main_loop(self):
+        while True:
+            #send test message
+            WSCommData.send_message('free', 'drl', 'hello from drl')
+            #get data
+            #jude action
+            #send message
+            await asyncio.sleep(self.main_loop_frequency)
 
-    async def connect(self, client_id):
-        uri = f"ws://fastapi:8080/ws/{client_id}" 
-        async with websockets.connect(uri) as websocket:
-            await websocket.send("Hello from the bot-b!")
-            response = await websocket.recv()
-            print(f"Received message from the server: {response}")
+    async def update_order(order_id: int, order_data: dict):
+        url = f"http://localhost:8000/orders/{order_id}"
+        headers = {'Content-Type': 'application/json'}
 
+        async with aiohttp.ClientSession() as session:
+            async with session.put(url, headers=headers, data=json.dumps(order_data)) as response:
+                print("Status:", response.status)
+                print("Content:", await response.text())
 
-# bot1としてインスタンス化し、そのconnectメソッドを呼び出す
-bot = Bot()
-asyncio.get_event_loop().run_until_complete(bot.connect('b'))
+order_data = {
+    'bot_name': 'Bot-A',
+    'ex_name': 'Exchange1',
+    'symbol': 'BTC/USD',
+    'base': 'BTC',
+    'quote': 'USD',
+    'action': 'BUY',
+    'type': 'LIMIT',
+    'side': 'BUY',
+    'price': 50000.0,
+    'avg_price': 50000.0,
+    'status': 'FILLED',
+    'ori_qty': 0.1,
+    'executed_qty': 0.1,
+    'fee': 0.001,
+    'ts': 1640995200
+}

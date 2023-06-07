@@ -5,11 +5,15 @@ services:
     build: ./TradingAccountManager
     volumes:
       - ./TradingAccountManager:/app
+    depends_on:
+      - fastapi
 
   fastapi:
       build: ./FastAPI
       volumes:
         - ./FastAPI:/app
+      depends_on:
+        - mysql
       #ports:
       #  - 8080:80
 
@@ -21,6 +25,18 @@ services:
       - 80:80
     depends_on:
       - fastapi
+
+  mysql:
+    build: ./DB
+    #volumes:
+    #  - ./DB:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    ports:
+      - 3306:3306
 
   bot-a:
     build: ./Bot-A

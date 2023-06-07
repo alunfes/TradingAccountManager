@@ -3,13 +3,13 @@ import time
 import datetime
 import itertools
 import asyncio
-import aiohttp
-import pandas as pd
 import os
-import numpy as np
 import yaml
 import pprint
 import requests
+
+from DisplayMessage import DisplayMessage
+
 
 
 class CCXTRestAPI:
@@ -121,7 +121,7 @@ class CCXTRestAPI:
                                             'side='+side,
                                             'price='+str(price),
                                             'lot='+str(amount)])
-            CommunicationData.add_message('Error', 'CCXTRestAPI', 'send_order', e)
+            #CommunicationData.add_message('Error', 'CCXTRestAPI', 'send_order', e)
             return e
         except ccxt.InvalidOrder as e:
             # 注文が不正
@@ -131,7 +131,7 @@ class CCXTRestAPI:
                                             'side='+side,
                                             'price='+str(price),
                                             'lot='+str(amount)])
-            CommunicationData.add_message('Error', 'CCXTRestAPI', 'send_order', e)
+            #CommunicationData.add_message('Error', 'CCXTRestAPI', 'send_order', e)
             return e
         except Exception as e:
             DisplayMessage.display_message('CCXTRestApi', 'send_order', 'error', 
@@ -140,5 +140,29 @@ class CCXTRestAPI:
                                             'side='+side,
                                             'price='+str(price),
                                             'lot='+str(amount)])
-            CommunicationData.add_message('Error', 'CCXTRestAPI', 'send_order', e)
+            #CommunicationData.add_message('Error', 'CCXTRestAPI', 'send_order', e)
             return e
+        
+
+    async def get_ohlc(self, ex_name:str, symbol:str, ohlc_min:int, since_ts:int):
+        ohlcv = []
+        timeframe = {1:'1m', 5:'5m', 60:'1h', 240:'4h', 480:'8h', 1440:'1d'}[ohlc_min]
+        num_downloads = self.ex_num_downloads[ex_name]
+        while True:
+            res = await self.__get_ohlc(ex_name, symbol, timeframe, since_ts, num_downloads)
+            await asyncio.sleep(0.1)
+            if len(res) > 0:
+                ohlcv.extend(res)
+                since_ts = res[-1][0] + ohlc_min
+                #print(ex_name, '-', symbol, ' len=', len(res), ', since_ts=',since_ts, ', res last=', res[-1][0])
+            if len(res) < num_downloads*0.5:
+                print('ohlc download completed - ', ex_name, ' : ', symbol, ', res=',len(res), ':', num_downloads)
+                break
+        df = pd.DataFrame(ohlcv, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
+        df['dt'] = pd.to_datetime(df['timestamp'], unit='ms')
+        df = df.reindex(columns=['timestamp','dt','open','high','low','close','volume'])
+        df.set_index('timestamp', inplace=True)
+        # ダウンロードしたデータをCSVファイルに保存
+        filename = ex_name+'-'+symbol.replace('/','').split(':')[0]+'.csv'
+        df.to_csv('./Data/ohlcv/'+filename, index=False)
+        return {'symbol':symbol, 'ohlcv':ohlcv}
