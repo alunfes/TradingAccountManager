@@ -22,6 +22,7 @@ class Bot:
     async def __main_loop(self):
         while True:
             #send test message
+            print('bot-b added message.')
             WSCommData.send_message('free', 'drl', 'hello from drl')
             #get data
             #jude action

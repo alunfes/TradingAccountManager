@@ -5,7 +5,7 @@ from WSCommunicator import WSCommunicator
 
 class Main:
     def __init__(self) -> None:
-        pass
+        print('init bot-B')
 
     async def start(self):
         ws_comm = WSCommunicator()

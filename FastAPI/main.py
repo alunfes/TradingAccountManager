@@ -58,6 +58,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
         while True:
             data = await websocket.receive_text()
             data_dict = json.loads(data)
+            print('fastapi sending message.')
             await manager.send_message_to_client(data, data_dict['to'])
             print('senf message from', data_dict['from'], ' to ', data_dict['to'])
             #await manager.send_personal_message(f"You wrote: {data}", websocket)

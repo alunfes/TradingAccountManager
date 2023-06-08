@@ -13,6 +13,7 @@ class AccountUpdator:
     async def __main_loop(self):
         while True:
             #send test message
+            print('tam added message.')
             WSCommData.send_message('free', 'topbottom', 'hello from tam')
             #get data
             #jude action

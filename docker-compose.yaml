@@ -7,6 +7,7 @@ services:
       - ./TradingAccountManager:/app
     depends_on:
       - fastapi
+      - nginx
 
   fastapi:
       build: ./FastAPI

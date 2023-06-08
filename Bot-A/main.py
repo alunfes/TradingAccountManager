@@ -5,7 +5,7 @@ from WSCommunicator import WSCommunicator
 
 class Main:
     def __init__(self) -> None:
-        pass
+        print('init bot-A')
 
     async def start(self):
         ws_comm = WSCommunicator()
@@ -16,4 +16,6 @@ class Main:
 
 # bot1としてインスタンス化し、そのconnectメソッドを呼び出す
 bot_main = Main()
+print('bot starting')
 asyncio.run(bot_main.start())
+print('bot ended')

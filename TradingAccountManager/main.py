@@ -14,7 +14,7 @@ WS
 
 class TradaingAccountManager:
     def __init__(self) -> None:
-        pass
+        print('init tam')
 
     async def main(self):
         ws_com = WSCommunicator()
@@ -27,4 +27,6 @@ class TradaingAccountManager:
 
 # bot1としてインスタンス化し、そのconnectメソッドを呼び出す
 tam = TradaingAccountManager()
+print('tam starting')
 asyncio.run(tam.main())
+print('tam ended')

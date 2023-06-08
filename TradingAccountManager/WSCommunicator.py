@@ -43,7 +43,7 @@ class WSCommunicator:
         while True:
             try:
                 message = WSCommData.get_send_message()
-                if len(message) > 0:
+                if message != None:
                     await self.websocket.send(message)
                 await asyncio.sleep(0.5)
             except Exception as e:
@@ -52,6 +52,7 @@ class WSCommunicator:
 
     async def send_message(self, message):
         if self.websocket:
+            print('tam sending message.')
             await self.websocket.send(json.dumps(message))
         else:
             print("No active WebSocket connection.")
